@@ -90,50 +90,55 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-	  	  int delay;
-	  	  int swdata; //0-15
+  int swdata; //0-15
+    int delay=5000;
+    int button;
+    while (1)
+    {
 
-	  	  // move left
-	  	  for (int i=4; i<=11; i++) {
-	  	  	GPIOA->ODR = (1<<i);
-	  	  	swdata=GPIOB->IDR & 0x0f;
-	  	  	delay=count_delay(swdata);
-	  	  	HAL_Delay(delay);
-	  	  }
+      /* USER CODE END WHILE */
+  	  for (int i=4; i<=11; i++)
+  	  {
+  	  	GPIOA->ODR = (1<<i);
 
-	  	  // move right
-	  	  for (int i=10; i>4; i--) {
-	  	  	GPIOA->ODR = (1<<i);
-	  	  	swdata=GPIOB->IDR & 0x0f;
-	  	  	delay=count_delay(swdata);
-	  	  	HAL_Delay(delay);
-	  	  }
+  	  	button=GPIOC->IDR & 0x2000;
+  	  	if (button==0)
+  	  	{
+  	  		swdata=GPIOB->IDR & 0x0f;
+  	  		delay=count_delay(swdata);
+  	  	}
 
-    /* USER CODE END WHILE */
+  	  	HAL_Delay(delay);
+  	  }
 
-    /* USER CODE BEGIN 3 */
-  }
+  	  // move right
+  	  for (int i=10; i>4; i--)
+  	  {
+  	  	GPIOA->ODR = (1<<i);
+  	  	button=GPIOC->IDR & 0x2000;
+  	  	if (button==0)
+  	  	{
+  	  		swdata=GPIOB->IDR & 0x0f;
+  	  		delay=count_delay(swdata);
+  	  	}
+
+  	  	HAL_Delay(delay);
+  	  }
   /* USER CODE END 3 */
+}
 }
 
 /**
   * @brief System Clock Configuration
   * @retval None
   */
+
 int count_delay(int swdata)
-	  {
-		if (swdata)
-		{
-			int delay=1875/swdata;
-				  	return delay;
-		}
-		else
-			return 1000;
-
-	  }
-
+{
+	int delay;
+	delay = 1000 - (58 *swdata);
+	return delay;
+}
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -150,12 +155,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 16;
-  RCC_OscInitStruct.PLL.PLLN = 336;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
-  RCC_OscInitStruct.PLL.PLLQ = 4;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -165,12 +165,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }
@@ -186,12 +186,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7
                           |GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PC13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PA4 PA5 PA6 PA7
                            PA8 PA9 PA10 PA11 */
@@ -202,8 +209,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB1 PB2 PB3 PB4 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4;
+  /*Configure GPIO pins : PB0 PB1 PB2 PB3 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
