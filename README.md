@@ -40,6 +40,6 @@ Interface simple devices GPIO ports
 | ![y = mx + c](https://github.com/LuckyLizard-MKEL1123/stm32switchread/blob/main/Capture.PNG) | y = mx + c | delay = - 58.3 * swdata + 1000 ; where, swdata is DIP input |
 
 ## Results
-Link for milestone 2.1.2 demo: [read_switch](link)
+Link for milestone 2.1.2 demo: [read_switch](https://youtu.be/Xv-8sHphlcM)
 ## References
 1. https://www.youtube.com/watch?v=KFSpxY_KM5A
