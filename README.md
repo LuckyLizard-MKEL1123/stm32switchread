@@ -19,7 +19,7 @@ Interface simple devices GPIO ports
 
 ## Procedure
 1. In this milestone, the speed of knight rider lights are determined by the DIP switch value only when the push button is pressed.
-2. The source code from milestone 2.1.1 is modified with additional function of DIP switch and push button: [stm32knightrider.c](https://github.com/LuckyLizard-MKEL1123/stm32knightrider/blob/main/stm32knightrider.c)
+2. The source code from milestone 2.1.1 is modified with additional function of DIP switch and push button: [stm32switchread](https://github.com/LuckyLizard-MKEL1123/stm32switchread/blob/main/stm32switchread.c)
 3. The input data registers, GPIOA_IDR are used to read in input data from push button and DIP switch.
 4. The push button of  nucleo board is assigned by port C 13.
 5. An if condition is used inside the for loop to so that the DIP switch can only be read in if the push button is set.
